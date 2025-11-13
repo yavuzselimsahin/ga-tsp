@@ -541,9 +541,18 @@ export default function Home() {
           </div>
           <div className="mt-1">
             Route:{" "}
-            <span className="break-words">
-              {bestRef.current.route.map((i) => nodes[i]?.label ?? i).join(" -> ")}
-            </span>
+          <span className="break-words">
+  {(() => {
+    const route = bestRef.current?.route ?? [];
+    if (route.length === 0) return "";
+    // güvenlik: sadece geçerli indeksleri al
+    const safe = route.filter((idx) => typeof idx === "number" && idx >= 0 && idx < nodes.length);
+    // eğer son eleman ilk eleman değilse, döngüyü tamamlamak için ilk elemanı ekle
+    const closed = safe.length > 0 && safe[safe.length - 1] === safe[0] ? safe : safe.concat([safe[0]]);
+    return closed.map((i) => nodes[i]?.label ?? i).join(" -> ");
+  })()}
+</span>
+
           </div>
         </>
       ) : (
