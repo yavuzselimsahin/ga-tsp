@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import { Play, Square, RefreshCw, Trash2, Settings, Database, Shuffle } from "lucide-react";
+
 
 type Node = { id: number; x: number; y: number; label: string };
 
@@ -289,7 +291,9 @@ export default function Home() {
   function renderDistanceTable() {
     if (nodes.length === 0) return null;
     return (
-      <div className="overflow-auto text-xs max-h-40 bg-white">
+      <div className="overflow-auto text-xs max-h-200 max-w-7xl bg-white">
+
+
         <table className="table-auto text-xs">
           <thead>
             <tr>
@@ -302,9 +306,9 @@ export default function Home() {
           <tbody>
             {nodes.map((row, i) => (
               <tr key={row.id}>
-                <td className="pr-2">{row.label}</td>
+                <td className="pr-5">{row.label}</td>
                 {nodes.map((col, j) => (
-                  <td key={col.id} className="px-1">{Dmatrix[i][j]}</td>
+                  <td key={col.id} className="px-5">{Dmatrix[i][j]}</td>
                 ))}
               </tr>
             ))}
@@ -316,8 +320,117 @@ export default function Home() {
 
   return (
     <div className="p-4 max-w-7xl mx-auto bg-white">
-      <h1 className="text-xl font-bold mb-3">Interactive TSP + GA (assignment cities + custom)</h1>
+      <h1 className="text-xl font-bold mb-3">Traveling Salesman Problem solving using Genetic Algorithm</h1>
+      <h2 className="text-l font-bold mb-3">Yavuz Selim Sahin</h2>
+      <h3 className="mb-3">Heuristic Algorithms Course given by Assoc. Prof. Dr. Didem Abidin</h3>
+
+
       <div className="flex gap-4">
+                {/* Top settings bar */}
+<div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 w-60 bg-white/80 backdrop-blur-sm border border-gray-200 rounded shadow-md p-3 flex flex-col gap-3">
+
+  {/* Header */}
+  <div className="flex items-center gap-2 border-b pb-2">
+    <Settings className="w-5 h-5 text-black" />
+    <span className="font-medium text-gray-700 text-sm">Settings</span>
+  </div>
+
+  {/* Parameters */}
+  <div className="flex flex-col gap-2">
+    <div className="flex items-center justify-between">
+      <label className="text-xs text-gray-600">Crossover</label>
+      <select
+        value={String(crate)}
+        onChange={(e) => setCrate(Number(e.target.value))}
+        className="text-sm border rounded px-2 py-1 w-20"
+      >
+        <option value={0.85}>0.85</option>
+        <option value={0.9}>0.90</option>
+        <option value={0.95}>0.95</option>
+      </select>
+    </div>
+
+    <div className="flex items-center justify-between">
+      <label className="text-xs text-gray-600">Mutation</label>
+      <select
+        value={String(mrate)}
+        onChange={(e) => setMrate(Number(e.target.value))}
+        className="text-sm border rounded px-2 py-1 w-20"
+      >
+        <option value={0.1}>0.10</option>
+        <option value={0.15}>0.15</option>
+        <option value={0.2}>0.20</option>
+      </select>
+    </div>
+
+    <div className="flex items-center justify-between">
+      <label className="text-xs text-gray-600">Pop</label>
+      <input
+        type="number"
+        value={popSize}
+        onChange={(e) => setPopSize(Number(e.target.value))}
+        className="w-20 text-sm border rounded px-2 py-1"
+      />
+    </div>
+
+    <div className="flex items-center justify-between">
+      <label className="text-xs text-gray-600">Gens</label>
+      <input
+        type="number"
+        value={maxGen}
+        onChange={(e) => setMaxGen(Number(e.target.value))}
+        className="w-20 text-sm border rounded px-2 py-1"
+      />
+    </div>
+  </div>
+
+  {/* Actions */}
+  <div className="flex flex-col gap-2 mt-2">
+    <button
+      onClick={loadAssignmentCities}
+      className="flex items-center gap-2 px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 w-full justify-center"
+    >
+      <Database className="w-4 h-4" /> Load
+    </button>
+
+    {/* <button
+      onClick={loadAssignmentCitiesMatrixLayout}
+      className="flex items-center gap-2 px-3 py-1 rounded bg-green-400 text-black hover:bg-green-500 w-full justify-center"
+    >
+      <Shuffle className="w-4 h-4" /> Matrix
+    </button> */}
+
+    <button
+      onClick={startFromScratch}
+      className="flex items-center gap-2 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 w-full justify-center"
+    >
+      <RefreshCw className="w-4 h-4" /> Scratch
+    </button>
+
+    <button
+      onClick={clearAll}
+      className="flex items-center gap-2 px-3 py-1 rounded bg-red-200 hover:bg-red-300 w-full justify-center"
+    >
+      <Trash2 className="w-4 h-4" /> Clear
+    </button>
+
+    <button
+      disabled={running}
+      onClick={runGA}
+      className="flex items-center gap-2 px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 w-full justify-center"
+    >
+      <Play className="w-4 h-4" /> Run
+    </button>
+
+    <button
+      disabled={!running}
+      onClick={stop}
+      className="flex items-center gap-2 px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 w-full justify-center"
+    >
+      <Square className="w-4 h-4" /> Stop
+    </button>
+  </div>
+</div>
         <div className="flex-1">
           <svg
             ref={svgRef}
@@ -384,69 +497,19 @@ export default function Home() {
 
           <div className="mt-2 text-sm text-black-600">Click on the canvas to add a node (only in "Start from scratch" mode). Drag nodes to reposition. The GA uses Euclidean distances between nodes.</div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <div className="p-2 border rounded">
-              <h3 className="font-semibold">Quick actions</h3>
-              <div className="flex gap-2 mt-2">
-                <button onClick={loadAssignmentCities} className="px-3 py-1 bg-green-600 text-black rounded">Load assignment cities</button>
-                <button onClick={loadAssignmentCitiesMatrixLayout} className="px-3 py-1 bg-green-400 text-black rounded">Load matrix layout</button>
-                <button onClick={startFromScratch} className="px-3 py-1 bg-gray-200 rounded">Start from scratch</button>
-                <button onClick={clearAll} className="px-3 py-1 bg-red-200 rounded">Clear</button>
-              </div>
-
-              <h3 className="font-semibold mt-3">Parameters</h3>
-              <div className="flex items-center gap-2 mt-2">
-                <label className="text-sm">Crossover</label>
-                <select value={String(crate)} onChange={(e) => setCrate(Number(e.target.value))} className="ml-2">
-                  <option value={0.85}>0.85</option>
-                  <option value={0.9}>0.90</option>
-                  <option value={0.95}>0.95</option>
-                </select>
-              </div>
-              <div className="flex items-center gap-2 mt-2">
-                <label className="text-sm">Mutation</label>
-                <select value={String(mrate)} onChange={(e) => setMrate(Number(e.target.value))} className="ml-2">
-                  <option value={0.1}>0.10</option>
-                  <option value={0.15}>0.15</option>
-                  <option value={0.2}>0.20</option>
-                </select>
-              </div>
-              <div className="mt-2">
-                <label className="text-sm">Population</label>
-                <input type="number" value={popSize} onChange={(e) => setPopSize(Number(e.target.value))} className="ml-2 w-20" />
-              </div>
-              <div className="mt-2">
-                <label className="text-sm">Max generations</label>
-                <input type="number" value={maxGen} onChange={(e) => setMaxGen(Number(e.target.value))} className="ml-2 w-24" />
-              </div>
-
-              <div className="flex gap-2 mt-3">
-                <button disabled={running} onClick={runGA} className="px-3 py-1 bg-blue-600 text-black rounded disabled:opacity-50">Run GA</button>
-                <button disabled={!running} onClick={stop} className="px-3 py-1 bg-red-500 text-black rounded disabled:opacity-50">Stop</button>
-              </div>
-
-              <div className="mt-3 text-xs text-black-600">Mode: <strong>{mode}</strong> — Nodes: {nodes.length}</div>
-            </div>
-
-            <div className="p-2 border rounded">
-              <h3 className="font-semibold">Best found</h3>
-              <div className="mt-2 text-sm">
-                {bestRef.current ? (
-                  <>
-                    <div>Distance: <strong>{bestRef.current.dist}</strong></div>
-                    <div className="mt-1">Route: <span className="break-words">{bestRef.current.route.map((i) => nodes[i]?.label ?? i).join(" -> ")}</span></div>
-                  </>
-                ) : (
-                  <div className="text-black-500">No result yet</div>
-                )}
-
-                <h4 className="mt-3 font-medium">Logs</h4>
-                <div className="max-h-36 overflow-auto text-xs bg-white p-2 mt-1 border rounded">
-                  {log.length === 0 ? <div className="text-black-400">(no logs)</div> : log.map((l, i) => <div key={i}>{l}</div>)}
-                </div>
-              </div>
+   <div className="p-2 border rounded mb-2">
+            <h3 className="font-semibold">History (best per step)</h3>
+            <div className="max-h-48 overflow-auto text-xs p-2 bg-white border rounded">
+              {history.length === 0 ? <div className="text-black-500">No history</div> : (
+                <ol>
+                  {history.map((h, i) => <li key={i}>Step {i+1}: {h}</li>)}
+                </ol>
+              )}
             </div>
           </div>
+
+
+
 
           <div className="mt-4 p-2 border rounded">
             <h3 className="font-semibold">Distance matrix (rounded Euclidean)</h3>
@@ -464,24 +527,42 @@ export default function Home() {
             </ol>
           </div>
 
-          <div className="p-2 border rounded mb-2">
-            <h3 className="font-semibold">History (best per step)</h3>
-            <div className="max-h-48 overflow-auto text-xs p-2 bg-white border rounded">
-              {history.length === 0 ? <div className="text-black-500">No history</div> : (
-                <ol>
-                  {history.map((h, i) => <li key={i}>Step {i+1}: {h}</li>)}
-                </ol>
-              )}
-            </div>
-          </div>
+       
+            <div className="p-4 border rounded shadow-sm bg-white/80 backdrop-blur-sm">
+    <h3 className="font-semibold text-lg flex items-center gap-2">
+      Best Found
+    </h3>
 
-          <div className="p-2 border rounded">
-            <h3 className="font-semibold">Tips</h3>
-            <ul className="text-sm list-disc list-inside">
-              <li>For fast experiments start with ~6-10 nodes and small population (30-80).</li>
-              <li>Large populations and generations may slow the browser — consider server-side GA for heavy runs.</li>
-            </ul>
+    <div className="mt-2 text-sm">
+      {bestRef.current ? (
+        <>
+          <div>
+            Distance: <strong>{bestRef.current.dist}</strong>
           </div>
+          <div className="mt-1">
+            Route:{" "}
+            <span className="break-words">
+              {bestRef.current.route.map((i) => nodes[i]?.label ?? i).join(" -> ")}
+            </span>
+          </div>
+        </>
+      ) : (
+        <div className="text-gray-500 italic">No result yet</div>
+      )}
+
+      <h4 className="mt-4 font-medium flex items-center gap-2">
+        <RefreshCw className="w-4 h-4" /> Logs
+      </h4>
+
+      <div className="max-h-40 overflow-auto text-xs bg-gray-50 p-2 mt-1 border rounded">
+        {log.length === 0 ? (
+          <div className="text-gray-400 italic">(no logs)</div>
+        ) : (
+          log.map((l, i) => <div key={i}>{l}</div>)
+        )}
+      </div>
+    </div>
+  </div>
         </div>
       </div>
     </div>
