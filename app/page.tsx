@@ -495,7 +495,7 @@ export default function Home() {
             ))}
           </svg>
 
-          <div className="mt-2 text-sm text-black-600">Click on the canvas to add a node (only in "Start from scratch" mode). Drag nodes to reposition. The GA uses Euclidean distances between nodes.</div>
+          <div className="mt-2 text-sm text-black-600">Click on the canvas to add a node (only in "Start from scratch" mode). Drag nodes to reposition. The Assignment cities uses Euclidean distances between nodes.</div>
 
    <div className="p-2 border rounded mb-2">
             <h3 className="font-semibold">History (best per step)</h3>
@@ -512,7 +512,7 @@ export default function Home() {
 
 
           <div className="mt-4 p-2 border rounded">
-            <h3 className="font-semibold">Distance matrix (rounded Euclidean)</h3>
+            <h3 className="font-semibold">Distance matrix</h3>
             {renderDistanceTable()}
           </div>
         </div>
